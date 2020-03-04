@@ -71,11 +71,37 @@ void bimodal_1bit(string file_name){
     cout << "Table size: " << table_size << "---" << (double)correct / total * 100 << "%" << endl;
     infile.close();
   }  
-}
-
-void bimodal_2bit(int table_size, string file_name){
-  
 } 
+
+void bimodal_2bit(string file_name){
+  int correct = 0;
+  int total = 0;
+  for(int i = 4; i < 12; i++){
+    if(i == 6){
+      continue;
+    }
+    int table_size = pow(2, i);
+    vector<short> table;
+    table.resize(table_size, 3);
+    correct = 0;
+    total = 0;
+    unsigned long long addr;
+    string behavior;
+    unsigned long long target;
+    ifstream infile(file_name);
+    while(infile >> std::hex >> addr >> behavior >> std::hex >> target){
+      if(0 < table[addr % table_size] && table[addr % table_size] <= 3 && behavior == "NT"){
+        table[addr % table_size]--;
+      }
+      if(0 < table[addr % table_size] && table[addr % table_size] <= 3 && behavior == "T"){
+        table[addr % table_size]--;
+      }
+      total++;
+    }
+    cout << "Table size: " << table_size << "---" << (double)correct / total * 100 << "%" << endl;
+    infile.close();
+  }  
+}
 
 void gshare(){
 
