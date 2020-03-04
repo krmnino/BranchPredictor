@@ -76,7 +76,7 @@ void bimodal_1bit(string file_name) {
 void bimodal_2bit(string file_name) {
 	int correct = 0;
 	int total = 0;
-	for (int i = 4; i < 12; i++) {
+	for (int i = 4; i < 11; i++) {
 		if (i == 6) {
 			continue;
 		}
@@ -90,7 +90,7 @@ void bimodal_2bit(string file_name) {
 		unsigned long long target;
 		ifstream infile(file_name);
 		while (infile >> std::hex >> addr >> behavior >> std::hex >> target) {
-			if (0 < table[addr % table_size] && table[addr % table_size] <= 3 && behavior == "NT") {
+		if (0 < table[addr % table_size] && table[addr % table_size] <= 3 && behavior == "NT") {
 				if(table[addr % table_size] < 2){
 					correct++;
 				}
@@ -112,8 +112,26 @@ void bimodal_2bit(string file_name) {
 	}
 }
 
-void gshare() {
-
+void gshare(string file_name) {
+	int correct = 0;
+	int total = 0;
+	for(int i = 2; i < 11; i++){
+		unsigned short extractor = 0;
+		for(int j = 0; j <= i; j++){
+			extractor = (extractor << 1) | 1;
+		}
+		int ghr = 0;
+		vector<short> table;
+		table.resize(2048, 3);
+		unsigned long long addr;
+		string behavior;
+		unsigned long long target;
+		ifstream infile(file_name);
+		while (infile >> std::hex >> addr >> behavior >> std::hex >> target) {
+			int index = (addr & extractor) ^ (ghr & extractor);
+			cout << index << endl;
+		}
+	}
 }
 
 void tournament() {
@@ -125,9 +143,12 @@ void branch_target_buffer() {
 }
 
 void test_mod(string file_name) {
-	for (int i = 4; i < 12; i++) {
-		if (i == 6) continue;
-		cout << pow(2, i) << endl;
+	for(int i = 2; i < 11; i++){
+		unsigned short extractor = 0;
+		for(int j = 0; j <= i; j++){
+			extractor = extractor << 1 | 1;
+		}
+		cout << extractor << endl;
 	}
 }
 
@@ -137,7 +158,8 @@ int main(int argc, char* argv[]) {
 	//all_taken(name);
 	//all_not_taken(name);
 	//bimodal_1bit(name);
-	bimodal_2bit(name);
+	//bimodal_2bit(name);
+	gshare(name);
 	//test_mod(name);
 	cout << endl;
 	return 0;
