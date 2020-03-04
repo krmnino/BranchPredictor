@@ -90,10 +90,16 @@ void bimodal_2bit(string file_name) {
 		unsigned long long target;
 		ifstream infile(file_name);
 		while (infile >> std::hex >> addr >> behavior >> std::hex >> target) {
-			if (0 <= table[addr % table_size] && table[addr % table_size] <= 3 && behavior == "NT") {
+			if (0 < table[addr % table_size] && table[addr % table_size] <= 3 && behavior == "NT") {
+				if(table[addr % table_size] < 2){
+					correct++;
+				}
 				table[addr % table_size]--;
 			}
-			else if (0 <= table[addr % table_size] && table[addr % table_size] <= 3 && behavior == "T") {
+			else if (0 <= table[addr % table_size] && table[addr % table_size] < 3 && behavior == "T") {
+				if(table[addr % table_size] >= 2){
+					correct++;
+				}
 				table[addr % table_size]++;
 			}
 			else {
@@ -126,11 +132,13 @@ void test_mod(string file_name) {
 }
 
 int main(int argc, char* argv[]) {
+	//string name = "short_trace1.txt";
 	string name = "short_trace1.txt";
 	//all_taken(name);
 	//all_not_taken(name);
 	//bimodal_1bit(name);
 	bimodal_2bit(name);
 	//test_mod(name);
+	cout << endl;
 	return 0;
 }
