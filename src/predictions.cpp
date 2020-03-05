@@ -156,8 +156,69 @@ void gshare(string file_name) {
 	}
 }
 
-void tournament() {
-
+void tournament(string file_name) {
+	unsigned long long addr;
+	string behavior;
+	unsigned long long target;
+	ifstream infile(file_name);
+	int correct = 0;
+	int total = 0;
+	vector<short> table_bimodal_2bit;
+	vector<short> table_gshare;
+	vector<short> selector_table;
+	table_bimodal_2bit.resize(2048, 3);
+	table_gshare.resize(2048, 3);
+	selector_table.resize(2048, 0);
+	int prediction;
+	int ghr = 0;
+	while (infile >> std::hex >> addr >> behavior >> std::hex >> target) {
+		if (0 <= selector_table[addr % 2048] && selector_table[addr % 2048] < 2) {
+			prediction = table_gshare[(addr % 2048) ^ (ghr & 2047)];
+			(behavior == "T") ? ghr = (ghr << 1 | 1) : ghr = ghr << 1;
+			if (0 < selector_table[addr % 2048] && selector_table[addr % 2048] <= 3 && behavior == "NT") {
+				if (selector_table[addr % 2048] < 2) {
+					correct++;
+				}
+				if (0 < table_gshare[addr % 2048] && table_gshare[addr % 2048] <= 3 && behavior == "NT") {
+					table_gshare[addr % 2048]--;
+				}
+				else {
+					table_gshare[addr % 2048]++;
+				}
+				selector_table[addr % 2048]--;
+			}
+			else if (0 <= selector_table[addr % 2048] && selector_table[addr % 2048] < 3 && behavior == "T") {
+				if (selector_table[addr % 2048] >= 2) {
+					correct++;
+				}
+				if (0 < table_gshare[addr % 2048] && table_gshare[addr % 2048] <= 3 && behavior == "NT") {
+					table_gshare[addr % 2048]--;
+				}
+				else {
+					table_gshare[addr % 2048]++;
+				}
+				selector_table[addr % 2048]++;
+			}
+		}
+		else {
+			prediction = table_bimodal_2bit[addr % 2048];
+			if (0 < selector_table[addr % 2048] && selector_table[addr % 2048] <= 3 && behavior == "NT") {
+				if (selector_table[addr % 2048] < 2) {
+					correct++;
+				}
+				selector_table[addr % 2048]--;
+			}
+			else if (0 <= selector_table[addr % 2048] && selector_table[addr % 2048] < 3 && behavior == "T") {
+				if (selector_table[addr % 2048] >= 2) {
+					correct++;
+				}
+				selector_table[addr % 2048]++;
+			}
+		}
+		total++;
+	}
+	cout << correct << "," << total << "; ";
+	infile.close();
 }
 
 void branch_target_buffer() {
@@ -181,7 +242,8 @@ int main(int argc, char* argv[]) {
 	//all_not_taken(name);
 	//bimodal_1bit(name);
 	//bimodal_2bit(name);
-	gshare(name);
+	//gshare(name);
+	tournament(name);
 	//test_mod(name);
 	cout << endl;
 	return 0;
