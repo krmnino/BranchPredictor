@@ -172,50 +172,107 @@ void tournament(string file_name) {
 	int prediction;
 	int ghr = 0;
 	while (infile >> std::hex >> addr >> behavior >> std::hex >> target) {
-		if (0 <= selector_table[addr % 2048] && selector_table[addr % 2048] < 2) {
-			prediction = table_gshare[(addr % 2048) ^ (ghr & 2047)];
+		int sb_index = addr % 2048;
+		int g_index = (addr % 2048) ^ (ghr & 0x7FF);
+		int gshare_prediction = table_gshare[(addr % 2048) ^ (ghr & 0x7FF)];
+		int bimodal_prediction = table_bimodal_2bit[addr % 2048];
+		int selector_prediction = selector_table[addr % 2048];
+		if(0 <= selector_prediction && selector_prediction < 2){
+			prediction = 0;
+		}
+		else if(2 <= selector_prediction && selector_prediction <= 3){
+			prediction = 1;
+		}
+		if(prediction == 0){
+			if(0 <= gshare_prediction && gshare_prediction < 3 && behavior == "NT"){
+				if(gshare_prediction < 2){
+					if(selector_prediction < 3){
+						selector_table[addr % 2048]++;
+					}
+					correct++;
+				}
+				if(gshare_prediction > 0){
+					table_gshare[(addr % 2048) ^ (ghr & 0x7FF)]--;
+				}
+			}
+			else if(0 < gshare_prediction && gshare_prediction <= 3 && behavior == "T"){
+				if(gshare_prediction >= 2){
+					if(selector_prediction > 0){
+						selector_table[addr % 2048]--;
+					}
+					correct++;
+				}
+				if(gshare_prediction < 3){
+					table_gshare[(addr % 2048) ^ (ghr & 0x7FF)]++;
+				}		
+			}
+			else{
+				if(selector_table[addr % 2048] < 3){
+					selector_table[addr % 2048]++;
+				}
+				if(behavior == "T"){
+					if(gshare_prediction < 3){
+						table_gshare[(addr % 2048) ^ (ghr & 0x7FF)]++;
+					}
+					if(bimodal_prediction < 3){
+						table_bimodal_2bit[(addr % 2048) ^ (ghr & 0x7FF)]++;
+					}
+				}
+				else{
+					if(gshare_prediction > 0){
+						table_gshare[(addr % 2048) ^ (ghr & 0x7FF)]--;
+					}
+					if(bimodal_prediction > 0){
+						table_bimodal_2bit[(addr % 2048) ^ (ghr & 0x7FF)]--;
+					}
+				}
+			}
 			(behavior == "T") ? ghr = (ghr << 1 | 1) : ghr = ghr << 1;
-			if (0 < selector_table[addr % 2048] && selector_table[addr % 2048] <= 3 && behavior == "NT") {
-				if (selector_table[addr % 2048] < 2) {
-					correct++;
-				}
-				if (0 < table_gshare[addr % 2048] && table_gshare[addr % 2048] <= 3 && behavior == "NT") {
-					table_gshare[addr % 2048]--;
-				}
-				else {
-					table_gshare[addr % 2048]++;
-				}
-				selector_table[addr % 2048]--;
-			}
-			else if (0 <= selector_table[addr % 2048] && selector_table[addr % 2048] < 3 && behavior == "T") {
-				if (selector_table[addr % 2048] >= 2) {
-					correct++;
-				}
-				if (0 < table_gshare[addr % 2048] && table_gshare[addr % 2048] <= 3 && behavior == "NT") {
-					table_gshare[addr % 2048]--;
-				}
-				else {
-					table_gshare[addr % 2048]++;
-				}
-				selector_table[addr % 2048]++;
-			}
+			total++;
 		}
-		else {
-			prediction = table_bimodal_2bit[addr % 2048];
-			if (0 < selector_table[addr % 2048] && selector_table[addr % 2048] <= 3 && behavior == "NT") {
-				if (selector_table[addr % 2048] < 2) {
+		else if(prediction == 1){
+			if(0 <= bimodal_prediction && bimodal_prediction < 3 && behavior == "NT"){
+				if(bimodal_prediction < 2){
+					if(selector_prediction < 3){
+						selector_table[addr % 2048]++;
+					}
 					correct++;
 				}
-				selector_table[addr % 2048]--;
+				table_bimodal_2bit[addr % 2048]--;
 			}
-			else if (0 <= selector_table[addr % 2048] && selector_table[addr % 2048] < 3 && behavior == "T") {
-				if (selector_table[addr % 2048] >= 2) {
+			else if(0 < bimodal_prediction && bimodal_prediction <= 3 && behavior == "T"){
+				if(bimodal_prediction >= 2){
+					if(selector_prediction < 3){
+						selector_table[addr % 2048]++;
+					}
 					correct++;
 				}
-				selector_table[addr % 2048]++;
+				table_bimodal_2bit[addr % 2048]++;
 			}
+			else{
+				if(selector_table[addr % 2048] > 0){
+					selector_table[addr % 2048]--;
+				}
+				if(behavior == "T"){
+					if(gshare_prediction < 3){
+						table_gshare[(addr % 2048) ^ (ghr & 0x7FF)]++;
+					}
+					if(bimodal_prediction < 3){
+						table_bimodal_2bit[(addr % 2048) ^ (ghr & 0x7FF)]++;
+					}
+				}
+				else{
+					if(gshare_prediction > 0){
+						table_gshare[(addr % 2048) ^ (ghr & 0x7FF)]--;
+					}
+					if(bimodal_prediction > 0){
+						table_bimodal_2bit[(addr % 2048) ^ (ghr & 0x7FF)]--;
+					}
+				}
+			}
+			(behavior == "T") ? ghr = (ghr << 1 | 1) : ghr = ghr << 1;
+			total++;
 		}
-		total++;
 	}
 	cout << correct << "," << total << "; ";
 	infile.close();
