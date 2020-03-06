@@ -258,8 +258,31 @@ void tournament(string file_name) {
 	infile.close();
 }
 
-void branch_target_buffer() {
-
+void branch_target_buffer(string file_name) {
+	int correct;
+	int total;
+	vector<short> table;
+	table.resize(512, 1);
+	correct = 0;
+	total = 0;
+	unsigned long long addr;
+	string behavior;
+	unsigned long long target;
+	ifstream infile(file_name);
+	while (infile >> std::hex >> addr >> behavior >> std::hex >> target) {
+		if (table[addr % 512] == 1 && behavior == "NT") {
+			table[addr % 512] = 0;
+		}
+		else if (table[addr % 512] == 0 && behavior == "T") {
+			table[addr % 512] = 1;
+		}
+		else {
+			correct++;
+		}
+		total++;
+	}
+	cout << correct << "," << total << "; ";
+	infile.close();
 }
 
 void test_mod(string file_name) {
