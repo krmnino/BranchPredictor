@@ -174,100 +174,96 @@ void tournament(string file_name) {
 	while (infile >> std::hex >> addr >> behavior >> std::hex >> target) {
 		int sb_index = addr % 2048;
 		int g_index = (addr % 2048) ^ (ghr & 0x7FF);
-		int gshare_prediction = table_gshare[(addr % 2048) ^ (ghr & 0x7FF)];
-		int bimodal_prediction = table_bimodal_2bit[addr % 2048];
-		int selector_prediction = selector_table[addr % 2048];
-		if(0 <= selector_prediction && selector_prediction < 2){
-			prediction = 0;
-		}
-		else if(2 <= selector_prediction && selector_prediction <= 3){
-			prediction = 1;
-		}
-		if(prediction == 0){
-			if(0 <= gshare_prediction && gshare_prediction < 3 && behavior == "NT"){
-				if(gshare_prediction < 2){
-					if(selector_prediction < 3){
-						selector_table[addr % 2048]++;
+		int gshare_prediction = table_gshare[g_index];
+		int bimodal_prediction = table_bimodal_2bit[sb_index];
+		int selector_prediction = selector_table[sb_index];
+		if (0 <= selector_prediction && selector_prediction < 2) { //if selector prefers gshare
+			prediction = gshare_prediction;
+			if ((0 <= prediction && prediction < 2 && behavior == "NT") || (2 <= prediction && prediction <= 3 && behavior == "T")) { //if selected predictor is correct
+				correct++;
+				if ((0 <= prediction && prediction < 2) && !(0 <= bimodal_prediction && bimodal_prediction < 2) && behavior == "NT") { //if gshare correct and bimodal wrong when behavior is not taken
+					if (selector_table[sb_index] > 0) {
+						selector_table[sb_index]--;
 					}
-					correct++;
 				}
-				if(gshare_prediction > 0){
-					table_gshare[(addr % 2048) ^ (ghr & 0x7FF)]--;
+				else if ((2 <= prediction && prediction <= 3) && !(2 <= bimodal_prediction && bimodal_prediction <= 3) && behavior == "T") {  //if gshare correct and bimodal wrong when behavior is taken
+					if (selector_table[sb_index] > 0) {
+						selector_table[sb_index]--;
+					}
 				}
 			}
-			else if(0 < gshare_prediction && gshare_prediction <= 3 && behavior == "T"){
-				if(gshare_prediction >= 2){
-					if(selector_prediction > 0){
-						selector_table[addr % 2048]--;
+			else { //if selected predictor is wrong
+				if (!(0 <= prediction && prediction < 2) && (0 <= bimodal_prediction && bimodal_prediction < 2) && behavior == "NT") { //if gshare wrong and bimodal correct when behavior is not taken
+					if (selector_table[sb_index] < 3) {
+						selector_table[sb_index]++;
 					}
-					correct++;
 				}
-				if(gshare_prediction < 3){
-					table_gshare[(addr % 2048) ^ (ghr & 0x7FF)]++;
-				}		
+				else if (!(2 <= prediction && prediction <= 3) && (2 <= bimodal_prediction && bimodal_prediction <= 3) && behavior == "T") { //if gshare wrong and bimodal correct when behavior is taken
+					if (selector_table[sb_index] < 3) {
+						selector_table[sb_index]++;
+					}
+				}
 			}
-			else{
-				if(selector_table[addr % 2048] < 3){
-					selector_table[addr % 2048]++;
+			if (behavior == "NT") {
+				if (table_gshare[g_index] > 0) {
+					table_gshare[g_index]--;
 				}
-				if(behavior == "T"){
-					if(gshare_prediction < 3){
-						table_gshare[(addr % 2048) ^ (ghr & 0x7FF)]++;
-					}
-					if(bimodal_prediction < 3){
-						table_bimodal_2bit[(addr % 2048) ^ (ghr & 0x7FF)]++;
-					}
+				if (table_bimodal_2bit[sb_index] > 0) {
+					table_bimodal_2bit[sb_index]--;
 				}
-				else{
-					if(gshare_prediction > 0){
-						table_gshare[(addr % 2048) ^ (ghr & 0x7FF)]--;
-					}
-					if(bimodal_prediction > 0){
-						table_bimodal_2bit[(addr % 2048) ^ (ghr & 0x7FF)]--;
-					}
+			}
+			else if (behavior == "T") {
+				if (table_gshare[g_index] < 3) {
+					table_gshare[g_index]++;
+				}
+				if (table_bimodal_2bit[sb_index] < 3) {
+					table_bimodal_2bit[sb_index]++;
 				}
 			}
 			(behavior == "T") ? ghr = (ghr << 1 | 1) : ghr = ghr << 1;
 			total++;
 		}
-		else if(prediction == 1){
-			if(0 <= bimodal_prediction && bimodal_prediction < 3 && behavior == "NT"){
-				if(bimodal_prediction < 2){
-					if(selector_prediction < 3){
-						selector_table[addr % 2048]++;
+		else if (2 <= selector_prediction && selector_prediction <= 3) { //if selector prefers bimodal
+			prediction = bimodal_prediction;
+			if ((0 <= prediction && prediction < 2 && behavior == "NT") || (2 <= prediction && prediction <= 3 && behavior == "T")) { //if selected predictor is correct
+				correct++;
+				if ((0 <= prediction && prediction < 2) && !(0 <= gshare_prediction && gshare_prediction < 2) && behavior == "NT") { //if bimodal correct and gshare wrong when behavior is not taken
+					if (selector_table[sb_index] < 3) {
+						selector_table[sb_index]++;
 					}
-					correct++;
 				}
-				table_bimodal_2bit[addr % 2048]--;
+				else if ((2 <= prediction && prediction <= 3) && !(2 <= gshare_prediction && gshare_prediction <= 3) && behavior == "T") { //if bimodal correct and gshare wrong when behavior is taken
+					if (selector_table[sb_index] < 3) {
+						selector_table[sb_index]++;
+					}
+				}
 			}
-			else if(0 < bimodal_prediction && bimodal_prediction <= 3 && behavior == "T"){
-				if(bimodal_prediction >= 2){
-					if(selector_prediction < 3){
-						selector_table[addr % 2048]++;
+			else { //if selected predictor is wrong
+				if (!(0 <= prediction && prediction < 2) && (0 <= gshare_prediction && gshare_prediction < 2) && behavior == "NT") { //if bimodal wrong and gshare correct when behavior is not taken
+					if (selector_table[sb_index] > 0) {
+						selector_table[sb_index]--;
 					}
-					correct++;
 				}
-				table_bimodal_2bit[addr % 2048]++;
+				else if (!(2 <= prediction && prediction <= 3) && (2 <= gshare_prediction && gshare_prediction <= 3) && behavior == "T") { //if bimodal wrong and gshare correct when behavior is taken
+					if (selector_table[sb_index] > 0) {
+						selector_table[sb_index]--;
+					}
+				}
 			}
-			else{
-				if(selector_table[addr % 2048] > 0){
-					selector_table[addr % 2048]--;
+			if (behavior == "NT") {
+				if (table_gshare[g_index] > 0) {
+					table_gshare[g_index]--;
 				}
-				if(behavior == "T"){
-					if(gshare_prediction < 3){
-						table_gshare[(addr % 2048) ^ (ghr & 0x7FF)]++;
-					}
-					if(bimodal_prediction < 3){
-						table_bimodal_2bit[(addr % 2048) ^ (ghr & 0x7FF)]++;
-					}
+				if (table_bimodal_2bit[sb_index] > 0) {
+					table_bimodal_2bit[sb_index]--;
 				}
-				else{
-					if(gshare_prediction > 0){
-						table_gshare[(addr % 2048) ^ (ghr & 0x7FF)]--;
-					}
-					if(bimodal_prediction > 0){
-						table_bimodal_2bit[(addr % 2048) ^ (ghr & 0x7FF)]--;
-					}
+			}
+			else if (behavior == "T") {
+				if (table_gshare[g_index] < 3) {
+					table_gshare[g_index]++;
+				}
+				if (table_bimodal_2bit[sb_index] < 3) {
+					table_bimodal_2bit[sb_index]++;
 				}
 			}
 			(behavior == "T") ? ghr = (ghr << 1 | 1) : ghr = ghr << 1;
@@ -294,13 +290,13 @@ void test_mod(string file_name) {
 
 int main(int argc, char* argv[]) {
 	//string name = "short_trace1.txt";
-	string name = "short_trace1.txt";
+	string name = "short_trace2.txt";
 	//all_taken(name);
 	//all_not_taken(name);
 	//bimodal_1bit(name);
 	//bimodal_2bit(name);
-	//gshare(name);
-	tournament(name);
+	gshare(name);
+	//tournament(name);
 	//test_mod(name);
 	cout << endl;
 	return 0;
