@@ -3,8 +3,7 @@
 #include <string>
 #include <vector>
 #include <cmath>
-
-#include <bitset>
+#include <unordered_map>
 
 using namespace std;
 
@@ -259,31 +258,40 @@ void tournament(string file_name) {
 }
 
 void branch_target_buffer(string file_name) {
+	int accesses;
 	int correct;
-	int total;
+	vector<pair<unsigned long long, unsigned long long>> buffer; //first = addr, second = target
 	vector<short> table;
-	vector<unsigned long long> buffer;
 	buffer.resize(128);
 	table.resize(512, 1);
+	accesses = 0;
 	correct = 0;
-	total = 0;
 	unsigned long long addr;
 	string behavior;
 	unsigned long long target;
 	ifstream infile(file_name);
 	while (infile >> std::hex >> addr >> behavior >> std::hex >> target) {
+		if (table[addr % 512] == 1) {
+			accesses++;
+			int buffer_index = addr % 128;
+			if (buffer[addr % 128].first != addr) {
+				buffer[addr % 128].first = addr;
+				buffer[addr % 128].second = target;
+			}
+			else {
+				if (buffer[addr % 128].second == target) {
+					correct++;
+				}
+			}
+		}
 		if (table[addr % 512] == 1 && behavior == "NT") {
 			table[addr % 512] = 0;
 		}
 		else if (table[addr % 512] == 0 && behavior == "T") {
 			table[addr % 512] = 1;
 		}
-		else {
-			correct++;
-		}
-		total++;
 	}
-	cout << correct << "," << total << "; ";
+	cout << accesses << "," << correct << "; ";
 	infile.close();
 }
 
@@ -305,7 +313,8 @@ int main(int argc, char* argv[]) {
 	//bimodal_1bit(name);
 	//bimodal_2bit(name);
 	//gshare(name);
-	tournament(name);
+	//tournament(name);
+	branch_target_buffer(name);
 	//test_mod(name);
 	cout << endl;
 	return 0;
