@@ -263,7 +263,7 @@ void branch_target_buffer(string file_name) {
 	int total;
 	vector<short> table;
 	vector<unsigned long long> buffer;
-	buffer.resize(128)
+	buffer.resize(128);
 	table.resize(512, 1);
 	correct = 0;
 	total = 0;
