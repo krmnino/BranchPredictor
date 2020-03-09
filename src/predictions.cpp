@@ -7,9 +7,9 @@
 
 using namespace std;
 
-void all_taken(string file_name) {
-	int correct = 0;
-	int total = 0;
+void all_taken(ofstream &out_file, string file_name) {
+	long correct = 0;
+	long total = 0;
 	unsigned long long addr;
 	string behavior;
 	unsigned long long target;
@@ -21,10 +21,10 @@ void all_taken(string file_name) {
 		total++;
 	}
 	infile.close();
-	cout << correct << "," << total << "; ";
+	out_file << to_string(correct) << "," + to_string(total) << ";" << endl; 
 }
 
-void all_not_taken(string file_name) {
+void all_not_taken(ofstream &out_file, string file_name) {
 	int correct = 0;
 	int total = 0;
 	unsigned long long addr;
@@ -38,10 +38,11 @@ void all_not_taken(string file_name) {
 		total++;
 	}
 	infile.close();
-	cout << correct << "," << total << "; ";
+	out_file << to_string(correct) << "," + to_string(total) << ";" << endl; 
 }
 
-void bimodal_1bit(string file_name) {
+void bimodal_1bit(ofstream &out_file, string file_name) {
+	string out = "";
 	int correct;
 	int total;
 	for (int i = 4; i < 12; i++) {
@@ -69,15 +70,17 @@ void bimodal_1bit(string file_name) {
 			}
 			total++;
 		}
-		cout << correct << "," << total << "; ";
 		infile.close();
+		out_file << to_string(correct) << "," + to_string(total) << "; "; 
 	}
+	out_file << endl;
 }
 
-void bimodal_2bit(string file_name) {
+void bimodal_2bit(ofstream &out_file, string file_name) {
+	string out = "";
 	int correct;
 	int total;
-	for (int i = 4; i < 11; i++) {
+	for (int i = 4; i < 12; i++) {
 		if (i == 6) {
 			continue;
 		}
@@ -108,12 +111,14 @@ void bimodal_2bit(string file_name) {
 			}
 			total++;
 		}
-		cout << correct << "," << total << "; ";
 		infile.close();
+		out_file << to_string(correct) << "," + to_string(total) << "; "; 
 	}
+	out_file << endl;
 }
 
-void gshare(string file_name) {
+void gshare(ofstream &out_file, string file_name) {
+	string out = "";
 	int correct;
 	int total;
 	for (int i = 2; i < 11; i++) {
@@ -150,12 +155,13 @@ void gshare(string file_name) {
 			}
 			total++;
 		}
-		cout << correct << "," << total << "; ";
 		infile.close();
+		out_file << to_string(correct) << "," + to_string(total) << "; "; 	
 	}
+	out_file << endl;
 }
 
-void tournament(string file_name) {
+void tournament(ofstream &out_file, string file_name) {
 	unsigned long long addr;
 	string behavior;
 	unsigned long long target;
@@ -253,11 +259,11 @@ void tournament(string file_name) {
 		(behavior == "T") ? ghr = (ghr << 1 | 1) : ghr = ghr << 1;
 		total++;
 	}
-	cout << correct << "," << total << "; ";
 	infile.close();
+	out_file << to_string(correct) << "," + to_string(total) << ";" << endl; 
 }
 
-void branch_target_buffer(string file_name) {
+void branch_target_buffer(ofstream &out_file, string file_name) {
 	int accesses;
 	int correct;
 	vector<pair<unsigned long long, unsigned long long>> buffer; //first = addr, second = target
@@ -291,31 +297,23 @@ void branch_target_buffer(string file_name) {
 			table[addr % 512] = 1;
 		}
 	}
-	cout << accesses << "," << correct << "; ";
 	infile.close();
-}
-
-void test_mod(string file_name) {
-	for (int i = 2; i < 11; i++) {
-		unsigned short extractor = 0;
-		for (int j = 0; j <= i; j++) {
-			extractor = extractor << 1 | 1;
-		}
-		cout << extractor << endl;
-	}
+	out_file << to_string(accesses) << "," << to_string(correct) << ";" << endl;
 }
 
 int main(int argc, char* argv[]) {
-	//string name = "short_trace1.txt";
-	string name = "short_trace1.txt";
-	//all_taken(name);
-	//all_not_taken(name);
-	//bimodal_1bit(name);
-	//bimodal_2bit(name);
-	//gshare(name);
-	//tournament(name);
-	branch_target_buffer(name);
-	//test_mod(name);
-	cout << endl;
+	if(argc != 3){
+		cout << "usage: ./predictions [INPUT FILE] [OUTPUT FILE]" << endl;
+		return 0;
+	}
+	ofstream out_file(argv[2]);
+	all_taken(out_file, argv[1]);
+	all_not_taken(out_file, argv[1]);
+	bimodal_1bit(out_file, argv[1]);
+	bimodal_2bit(out_file, argv[1]);
+	gshare(out_file, argv[1]);
+	tournament(out_file, argv[1]);
+	branch_target_buffer(out_file, argv[1]);
+	out_file.close();
 	return 0;
 }
