@@ -1,6 +1,6 @@
 TARGET = predictions
 
-OBJS = predictions.o
+OBJS = predictions.o\
 
 CXX = g++
 CXXFLAGS = -std=c++17
