@@ -33,7 +33,10 @@ void bimodal_1bit(std::ofstream &out_file, std::string file_name) {
 			total++;
 		}
 		infile.close();
-		out_file << std::to_string(correct) << "," + std::to_string(total) << "; "; 
+		out_file << std::to_string(correct) << "," + std::to_string(total) << ";";
+		if(i != 11){
+			out_file << " ";
+		}
 	}
 	out_file << std::endl;
 }

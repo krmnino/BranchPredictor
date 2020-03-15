@@ -41,7 +41,10 @@ void gshare(std::ofstream &out_file, std::string file_name) {
 			total++;
 		}
 		infile.close();
-		out_file << std::to_string(correct) << "," + std::to_string(total) << "; "; 	
+		out_file << std::to_string(correct) << "," + std::to_string(total) << ";";
+		if(i != 10){
+			out_file << " ";
+		}
 	}
 	out_file << std::endl;
 }
