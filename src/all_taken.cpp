@@ -1,6 +1,8 @@
 #include <fstream>
 #include <string>
 
+#include "predictors.h"
+
 void all_taken(std::ofstream &out_file, std::string file_name) {
 	long correct = 0;
 	long total = 0;

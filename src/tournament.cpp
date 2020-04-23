@@ -2,6 +2,8 @@
 #include <string>
 #include <vector>
 
+#include "predictors.h"
+
 void tournament(std::ofstream &out_file, std::string file_name) {
 	unsigned long long addr;
 	std::string behavior;

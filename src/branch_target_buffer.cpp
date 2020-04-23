@@ -2,6 +2,8 @@
 #include <string>
 #include <vector>
 
+#include "predictors.h"
+
 void branch_target_buffer(std::ofstream &out_file, std::string file_name) {
 	int correct;
 	int attempted;

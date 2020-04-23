@@ -1,8 +1,7 @@
-#ifndef ANT
-#define ANT
-
 #include <fstream>
 #include <string>
+
+#include "predictors.h"
 
 void all_not_taken(std::ofstream &out_file, std::string file_name) {
 	int correct = 0;
@@ -20,5 +19,3 @@ void all_not_taken(std::ofstream &out_file, std::string file_name) {
 	infile.close();
 	out_file << std::to_string(correct) << "," + std::to_string(total) << ";" << std::endl; 
 }
-
-#endif

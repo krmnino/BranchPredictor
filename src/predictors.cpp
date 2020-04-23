@@ -1,12 +1,7 @@
 #include <iostream>
 #include <fstream>
-#include "all_not_taken.cpp"
-#include "all_taken.cpp"
-#include "bimodal_1bit.cpp"
-#include "bimodal_2bit.cpp"
-#include "branch_target_buffer.cpp"
-#include "gshare.cpp"
-#include "tournament.cpp"
+
+#include "predictors.h"
 
 int main(int argc, char* argv[]) {
 	if(argc != 3){

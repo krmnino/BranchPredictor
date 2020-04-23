@@ -3,6 +3,8 @@
 #include <vector>
 #include <cmath>
 
+#include "predictors.h"
+
 void bimodal_1bit(std::ofstream &out_file, std::string file_name) {
 	std::string out = "";
 	int correct;

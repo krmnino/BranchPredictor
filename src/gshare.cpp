@@ -2,6 +2,8 @@
 #include <string>
 #include <vector>
 
+#include "predictors.h"
+
 void gshare(std::ofstream &out_file, std::string file_name) {
 	std::string out = "";
 	int correct;
